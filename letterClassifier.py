@@ -40,7 +40,9 @@ class LetterClassifier:
 
         self.__updateValues()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        im_thresh = cv2.inRange(gray, self.__blackLowLimit, self.__blackHighLimit)
+        #im_thresh = cv2.inRange(gray, self.__blackLowLimit, self.__blackHighLimit)
+        im_thresh = cv2.threshold(gray, self.__blackLowLimit, self.__blackHighLimit, cv2.THRESH_BINARY)[1]
+        cv2.imshow("Thresh", im_thresh)
         heightOriginal, widthOriginal = im_thresh.shape
         areaOriginal = heightOriginal * widthOriginal
         _, contours, hierarchy = cv2.findContours(im_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
