@@ -14,16 +14,12 @@ class LetterClassifier:
         blackAmount = 0
         for y in range(height):
             for x in range(width):
-                #print (matrix[y, x], end=' ')
                 if(matrix[y, x] == 0):
                     blackAmount = blackAmount + 1
                 totalAmount = totalAmount + 1
-            #print()
-
-        if(blackAmount > totalAmount * threshold / 100):
-            return True
-        else:
-            return False
+                
+        return (blackAmount > totalAmount * threshold / 100)
+           
 
     def __updateValues(self):
         self.__config.read('settings.ini')
