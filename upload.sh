@@ -1,0 +1,1 @@
+scp ./* pi@raspberrypi.local:/home/pi/Documents/Robocup2018
