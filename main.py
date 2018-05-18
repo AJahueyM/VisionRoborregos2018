@@ -18,8 +18,6 @@ while True:
     newHeight = round(sizeReduction * height)
     res = cv2.resize(im, ( newWidth, newHeight))
     cv2.imshow('Original', res)
-    # Read image
-    #im = cv2.imread("letterS.png", cv2.IMREAD_GRAYSCALE)
     print(classifier.getLetterFromImage(res))
 
     cv2.waitKey(1)

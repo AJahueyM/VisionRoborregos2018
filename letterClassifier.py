@@ -38,7 +38,7 @@ class LetterClassifier:
 
     def getLetterFromImage(self, im):
 
-        self.__updateValues()
+        #self.__updateValues()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         #im_thresh = cv2.inRange(gray, self.__blackLowLimit, self.__blackHighLimit)
         im_thresh = cv2.threshold(gray, self.__blackLowLimit, self.__blackHighLimit, cv2.THRESH_BINARY)[1]
@@ -54,7 +54,6 @@ class LetterClassifier:
             x, y, w, h = rect
             #Area filter
             if (w * h  / areaOriginal)  > (self.__minAreaLetter / 100) and w * h  / areaOriginal < 1:
-                #print("Counter: {} \t\%area: {} \tThresh: {}".format(counter, w * h / areaOriginal, self.__minAreaLetter / 100))
                 counter = counter + 1
                 rects.append(cv2.boundingRect(cnt))
 
@@ -65,12 +64,11 @@ class LetterClassifier:
             for rectCand in rects:
                 x,y,w,h = rectCand
                 ratio = w/h
-                higherThanLower = ratio > (self.__heightWidthRatioLow) #- self.__heightWidthRatioLow * (self.__heightWidthRatioTolerance / 100))
-                lowerThanHigher = ratio < (self.__heightWidthRatioHigh )#+ self.__heightWidthRatioHigh * (self.__heightWidthRatioTolerance / 100))
+                higherThanLower = ratio > self.__heightWidthRatioLow
+                lowerThanHigher = ratio < self.__heightWidthRatioHigh
                 if higherThanLower and lowerThanHigher:
                     ratioFilteredRects.append(rectCand)
                     x,y,w,h = rectCand
-                    #cv2.rectangle(im_thresh,(x,y),(x+w,y+h),0,1)
             rect = rects[0]
 
             if len(ratioFilteredRects) == 0:
@@ -105,7 +103,6 @@ class LetterClassifier:
             isS = (upperIsBlack & middleIsBlack) & lowerIsBlack
             isH = (not upperIsBlack & middleIsBlack) & (not lowerIsBlack)
             isU = (not upperIsBlack & (not middleIsBlack)) & lowerIsBlack
-            #print("Upper: {}\tMiddle: {}\tLower: {}".format(upperIsBlack, middleIsBlack,lowerIsBlack ))
             if isS:
                 return ("S")
             elif isH :
