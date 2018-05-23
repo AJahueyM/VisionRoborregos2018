@@ -10,10 +10,10 @@ config = configparser.ConfigParser()
 config.read("settings.ini")
 sizeReduction = config.getfloat('General', 'ImageSizeReduction', fallback=.25)
 classifier = LetterClassifier()
-#cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
-#cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
+cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
+cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
 camera = PiCamera()
-camera.resolution = (160, 120)
+camera.resolution = (160, 128)
 time.sleep(1)
 camera.start_preview()
 camera.awb_mode = 'off'
@@ -29,7 +29,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	image = frame.array
 	print(classifier.getLetterFromImage(image))
 	# show the frame
-	#cv2.imshow("Original", image)
+	cv2.imshow("Original", image)
 	key = cv2.waitKey(1) & 0xFF
  
 	# clear the stream in preparation for the next frame

@@ -31,27 +31,26 @@ class LetterClassifier:
         self.__blackHighLimit = self.__config.getfloat('LetterDetection', 'ImageBlackHighLimit', fallback=255)
         self.__lineIdentifierWidth = self.__config.getfloat('LetterDetection', 'LineIdentifierrWidth', fallback=3)
         self.__minAreaLetter = self.__config.getfloat('LetterDetection', 'MinAreaLetter', fallback=5)
+        self.__maxAreaLetter = self.__config.getfloat('LetterDetection', 'MaxAreaLetter', fallback=30)
 
     def getLetterFromImage(self, im):
         self.__updateValues()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         im_thresh = cv2.threshold(gray, self.__blackLowLimit, self.__blackHighLimit, cv2.THRESH_BINARY)[1]
-        #cv2.imshow("Thresh", im_thresh)
+        cv2.imshow("Thresh", im_thresh)
         heightOriginal, widthOriginal = im_thresh.shape
         areaOriginal = heightOriginal * widthOriginal
         _, contours, hierarchy = cv2.findContours(im_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        counter = 0
         rects = []
         for cnt in contours:
             rect = cv2.boundingRect(cnt)
             x, y, w, h = rect
             #Area filter
-            if (w * h  / areaOriginal)  > (self.__minAreaLetter / 100) and w * h  / areaOriginal < 1:
-                counter = counter + 1
+            if (w * h  / areaOriginal)  > (self.__minAreaLetter / 100) and (w * h  / areaOriginal) < (self.__maxAreaLetter / 100):
                 rects.append(cv2.boundingRect(cnt))
 
-        if counter >= 1:
+        if len(rects) >= 1:
 
             #Ratio filter
             ratioFilteredRects = []
@@ -62,7 +61,8 @@ class LetterClassifier:
                 lowerThanHigher = ratio < self.__heightWidthRatioHigh
                 if higherThanLower and lowerThanHigher:
                     ratioFilteredRects.append(rectCand)
-                    x,y,w,h = rectCand
+                    cv2.rectangle(im, (x, y), (x+w, y+h), (250,0,0))         
+           
             rect = rects[0]
 
             if len(ratioFilteredRects) == 0:
@@ -70,10 +70,20 @@ class LetterClassifier:
 
             if len(ratioFilteredRects) >= 1:
                 rect = ratioFilteredRects[0]
+                x,y,w,h = rect
+                areaOld = w * h
+                for rectA in ratioFilteredRects:
+                    x,y,w,h = rectA
+                    areaNew = w * h
+                    if areaNew < areaOld:
+                        areaOld = areaNew
+                        rect = rectA
             
 
+            #print(ratioFilteredRects)
             x,y,w,h = rect
-
+            cv2.rectangle(im, (x, y), (x+w, y+h), (0,255,0))         
+            cv2.imshow('Original', im)
             letter = im_thresh[y:y+h, x:x+w]
 
             height, width = letter.shape
@@ -97,11 +107,14 @@ class LetterClassifier:
             isS = (upperIsBlack & middleIsBlack) & lowerIsBlack
             isH = (not upperIsBlack & middleIsBlack) & (not lowerIsBlack)
             isU = (not upperIsBlack & (not middleIsBlack)) & lowerIsBlack
+
             if isS:
                 return ("S")
             elif isH :
                 return ("H")
             elif isU:
                 return ("U")
+        else:
+            cv2.imshow('Original', im)
     
         return (self.__errorNoLetterFound)
