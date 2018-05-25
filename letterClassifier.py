@@ -6,7 +6,10 @@ class LetterClassifier:
     def __init__(self):
         self.__config = configparser.ConfigParser()
         self.__updateValues()
-        self.__errorNoLetterFound = 'n/a'
+        self.errorNoLetterFound = "n/a"
+        self.sLetterFound = "S"
+        self.hLetterFound = "H"
+        self.uLetterFound = "U"
 
     def __hasBlack (self,matrix, threshold):
         height, width = matrix.shape
@@ -25,7 +28,6 @@ class LetterClassifier:
         self.__config.read('settings.ini')
         self.__heightWidthRatioLow = self.__config.getfloat('LetterDetection', 'HeightWidthRatioLowLimit', fallback=.78)
         self.__heightWidthRatioHigh = self.__config.getfloat('LetterDetection', 'HeightWidthRatioHighLimit', fallback=.83)
-        self.__heightWidthRatioTolerance = self.__config.getfloat('LetterDetection', 'PercentHeightWidthTolerance', fallback=10)
         self.__blackSectionPercent = self.__config.getfloat('LetterDetection', 'BlackThresholdSectionPercent', fallback=10)
         self.__blackLowLimit = self.__config.getfloat('LetterDetection', 'ImageBlackLowLimit', fallback=200)
         self.__blackHighLimit = self.__config.getfloat('LetterDetection', 'ImageBlackHighLimit', fallback=255)
@@ -66,7 +68,7 @@ class LetterClassifier:
             rect = rects[0]
 
             if len(ratioFilteredRects) == 0:
-                return (self.__errorNoLetterFound)
+                return (self.errorNoLetterFound)
 
             if len(ratioFilteredRects) >= 1:
                 rect = ratioFilteredRects[0]
@@ -80,7 +82,6 @@ class LetterClassifier:
                         rect = rectA
             
 
-            #print(ratioFilteredRects)
             x,y,w,h = rect
             cv2.rectangle(im, (x, y), (x+w, y+h), (0,255,0))         
             #cv2.imshow('Original', im)
@@ -109,9 +110,9 @@ class LetterClassifier:
             isU = (not upperIsBlack & (not middleIsBlack)) & lowerIsBlack
 
             if isS:
-                return ("S")
+                return (self.sLetterFound)
             elif isH :
-                return ("H")
+                return (self.hLetterFound)
             elif isU:
-                return ("U")
-        return (self.__errorNoLetterFound)
+                return (self.uLetterFound)
+        return (self.errorNoLetterFound)
