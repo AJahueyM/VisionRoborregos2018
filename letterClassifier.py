@@ -37,7 +37,7 @@ class LetterClassifier:
         self.__updateValues()
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         im_thresh = cv2.threshold(gray, self.__blackLowLimit, self.__blackHighLimit, cv2.THRESH_BINARY)[1]
-        cv2.imshow("Thresh", im_thresh)
+        #cv2.imshow("Thresh", im_thresh)
         heightOriginal, widthOriginal = im_thresh.shape
         areaOriginal = heightOriginal * widthOriginal
         _, contours, hierarchy = cv2.findContours(im_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -83,7 +83,7 @@ class LetterClassifier:
             #print(ratioFilteredRects)
             x,y,w,h = rect
             cv2.rectangle(im, (x, y), (x+w, y+h), (0,255,0))         
-            cv2.imshow('Original', im)
+            #cv2.imshow('Original', im)
             letter = im_thresh[y:y+h, x:x+w]
 
             height, width = letter.shape
@@ -114,7 +114,4 @@ class LetterClassifier:
                 return ("H")
             elif isU:
                 return ("U")
-        else:
-            cv2.imshow('Original', im)
-    
         return (self.__errorNoLetterFound)
