@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import cv2 
 from letterClassifier import LetterClassifier 
 from picamera.array import PiRGBArray
@@ -10,8 +9,8 @@ import RPi.GPIO as GPIO
 
 print("Roborregos Delta | Robocup 2018 - Maze Junior Vision ")
 
-#cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
-#cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
+cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
+cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
 
 config = configparser.ConfigParser()
 config.read("settings.ini")
@@ -19,8 +18,8 @@ config.read("settings.ini")
 xSize = config.getint('General', 'ImageSizeX', fallback=80)
 ySize = config.getint('General', 'ImageSizeY', fallback=64)
 shutterSpeed = config.getint('General', 'ShutterSpeed', fallback = 3000)
-aw1 = config.getfloat('General', 'AWGain1', fallback=1.6)
-aw2 = config.getfloat('General', 'AWGain2', fallback = 1.9)
+awR = config.getfloat('General', 'AWGainR', fallback=1.6)
+awB = config.getfloat('General', 'AWGainB', fallback = 1.9)
 
 heightStartPercent = config.getfloat('General', 'HeightStartDivisionPercent', fallback=20) / 100
 heightEndPercent = config.getfloat('General', 'HeightEndDivisionPercent', fallback=80) / 100
@@ -37,10 +36,10 @@ camera.resolution = (xSize, ySize)
 time.sleep(1)
 camera.start_preview()
 camera.awb_mode = 'off'
-camera.awb_gains = (aw1, aw2)
+camera.awb_gains = (awR, awB)
 camera.shutter_speed = shutterSpeed
 camera.exposure_mode = 'off'
-#camera.vflip = True
+camera.hflip = True
 rawCapture = PiRGBArray(camera)
 
 sLetterPin = config.getint('General', 'SLetterPin', fallback=10)
@@ -48,7 +47,7 @@ uLetterPin = config.getint('General', 'ULetterPin', fallback=11)
 hLetterPin = config.getint('General', 'HLetterPin', fallback=12)
 directionLetterPin = config.getint('General', 'DirectionLetterPin', fallback=13)
 
-
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(sLetterPin, GPIO.OUT)
 GPIO.setup(uLetterPin, GPIO.OUT)
@@ -59,22 +58,20 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	config.read("settings.ini")
 
 	shutterSpeed = config.getint('General', 'ShutterSpeed', fallback = 3000)
-	aw1 = config.getfloat('General', 'AWGain1', fallback=1.6)
-	aw2 = config.getfloat('General', 'AWGain2', fallback = 1.9)
-	camera.awb_gains = (aw1, aw2)
+	awR = config.getfloat('General', 'AWGainR', fallback=1.6)
+	awB = config.getfloat('General', 'AWGainB', fallback = 1.9)
+	camera.awb_gains = (awR, awB)
 	camera.shutter_speed = shutterSpeed
+	
 	image = frame.array
 	leftMirror = image[heightStartDivision : heightEndDivision, 0: midPointImage - widthDistanceDivision]
 	rightMirror = image[heightStartDivision : heightEndDivision, midPointImage + widthDistanceDivision : xSize]
 	cv2.rectangle(image, (0, heightStartDivision), (midPointImage - widthDistanceDivision, heightEndDivision), (0,0,255))
 	cv2.rectangle(image, (midPointImage + widthDistanceDivision, heightStartDivision), (xSize, heightEndDivision), (0,0,255))
 
-	#print(classifier.getLetterFromImage(image))
 	leftLetter = classifier.getLetterFromImage(leftMirror)
 	rightLetter = classifier.getLetterFromImage(rightMirror)
-	#print ("leftLetter")
-	#print ("Left: {}\tRight: {}".format(leftLetter, rightLetter))
-	#cv2.imshow("Original", image)
+	cv2.imshow("Original", image)
 
 
 	if leftLetter != classifier.errorNoLetterFound:
