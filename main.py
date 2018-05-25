@@ -9,8 +9,8 @@ import RPi.GPIO as GPIO
 
 print("Roborregos Delta | Robocup 2018 - Maze Junior Vision ")
 
-cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
-cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
+#cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
+#cv2.namedWindow('Thresh',cv2.WINDOW_NORMAL)
 
 config = configparser.ConfigParser()
 config.read("settings.ini")
@@ -55,14 +55,6 @@ GPIO.setup(hLetterPin, GPIO.OUT)
 GPIO.setup(directionLetterPin, GPIO.OUT)
 
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-	config.read("settings.ini")
-
-	shutterSpeed = config.getint('General', 'ShutterSpeed', fallback = 3000)
-	awR = config.getfloat('General', 'AWGainR', fallback=1.6)
-	awB = config.getfloat('General', 'AWGainB', fallback = 1.9)
-	camera.awb_gains = (awR, awB)
-	camera.shutter_speed = shutterSpeed
-	
 	image = frame.array
 	leftMirror = image[heightStartDivision : heightEndDivision, 0: midPointImage - widthDistanceDivision]
 	rightMirror = image[heightStartDivision : heightEndDivision, midPointImage + widthDistanceDivision : xSize]
@@ -71,7 +63,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
 	leftLetter = classifier.getLetterFromImage(leftMirror)
 	rightLetter = classifier.getLetterFromImage(rightMirror)
-	cv2.imshow("Original", image)
+	#print("Left: {}\t Right:{}".format(leftLetter, rightLetter))
+	#cv2.imshow("Original", image)
 
 
 	if leftLetter != classifier.errorNoLetterFound:
