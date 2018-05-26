@@ -29,6 +29,9 @@ heightStartDivision = round(ySize * heightStartPercent)
 heightEndDivision = round(ySize * heightEndPercent)
 widthDistanceDivision = round(xSize * widthDistancePercent)
 midPointImage = round(xSize / 2)
+
+hFlip = config.getboolean('General', 'HFlip', fallback=True)
+vFlip = config.getboolean('General', 'VFlip', fallback=True)
 classifier = LetterClassifier()
 
 camera = PiCamera()
@@ -39,7 +42,8 @@ camera.awb_mode = 'off'
 camera.awb_gains = (awR, awB)
 camera.shutter_speed = shutterSpeed
 camera.exposure_mode = 'off'
-camera.hflip = True
+camera.hflip = hFlip
+camera.vflip = vFlip
 rawCapture = PiRGBArray(camera)
 
 sLetterPin = config.getint('General', 'SLetterPin', fallback=10)
